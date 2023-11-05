@@ -108,7 +108,7 @@
         // Attributionを折りたたみ表示
         map.addControl(new maplibregl.AttributionControl({
             compact: true,
-            customAttribution: '（<a href="https://twitter.com/shi__works" target="_blank">Twitter</a> | <a href="" target="_blank">Github</a>） '
+            customAttribution: '（<a href="https://twitter.com/shi__works" target="_blank">Twitter</a> | <a href="https://github.com/shi-works/Map-Warper-Terrain-Map-on-MapLibre-GL-JS" target="_blank">Github</a>） '
         }));
 
         map.on('load', () => {
@@ -118,7 +118,7 @@
                 tiles: [
                     `https://mapwarper.h-gis.jp/maps/tile/917/{z}/{x}/{y}.png`,
                 ],
-                attribution: '<a href="https://mapwarper.h-gis.jp/" target="_blank">日本版MapWarper</a>',
+                attribution: '<a href="https://mapwarper.h-gis.jp/maps/917" target="_blank">Image from the Map Collections courtesy Stanford University Libraries, licensed under a Creative Commons Attribution-Noncommercial 3.0 Unported License. © Stanford University.</a>',
                 tileSize: 256
             });
 
