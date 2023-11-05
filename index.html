@@ -1,0 +1,156 @@
+<html>
+
+<head>
+    <title>日本版 Map Warper 戦前古地図5万分の1地形図</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://unpkg.com/maplibre-gl@3.1.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@3.1.0/dist/maplibre-gl.css' rel='stylesheet' />
+    <script src="https://unpkg.com/pmtiles@2.10.0/dist/index.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-overlay {
+            font: bold 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            position: absolute;
+            width: 180px;
+            bottom: 20px;
+            left: 0;
+            padding: 10px;
+        }
+
+        .map-overlay .map-overlay-inner {
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .map-overlay label {
+            display: block;
+            margin: 0 0 0px;
+            font-size: 12px;
+            top: 100px;
+            left: 10px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .map-overlay input {
+            background-color: transparent;
+            display: inline-block;
+            width: 100%;
+            position: relative;
+            margin: 0;
+            cursor: ew-resize;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div class="map-overlay top">
+        <div class="map-overlay-inner">
+            <label>地形図 不透明度: <span id="terrain-slider-opacity-value">100%</span></label>
+            <input id="terrain-slider-opacity" type="range" min="0" max="100" step="1" value="100">
+        </div>
+    </div>
+    <script type="text/javascript">
+        // protocolの設定
+        let protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+
+        // マップの初期化
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'std.json',
+            // style: 'https://tile2.openstreetmap.jp/styles/osm-bright-ja/style.json',
+            zoom: 12,
+            minZoom: 1,
+            maxZoom: 23,
+            pitch: 0,
+            bearing: 0,
+            center: [139.4806026, 35.9077885],
+            hash: true,
+            attributionControl: false
+        });
+
+        // ズーム・回転
+        map.addControl(new maplibregl.NavigationControl());
+
+        // フルスクリーンモードのオンオフ
+        map.addControl(new maplibregl.FullscreenControl());
+
+        // 現在位置表示
+        map.addControl(new maplibregl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: false
+            },
+            fitBoundsOptions: { maxZoom: 18 },
+            trackUserLocation: true,
+            showUserLocation: true
+        }));
+
+        // スケール表示
+        map.addControl(new maplibregl.ScaleControl({
+            maxWidth: 200,
+            unit: 'metric'
+        }));
+
+        // Attributionを折りたたみ表示
+        map.addControl(new maplibregl.AttributionControl({
+            compact: true,
+            customAttribution: '（<a href="https://twitter.com/shi__works" target="_blank">Twitter</a> | <a href="" target="_blank">Github</a>） '
+        }));
+
+        map.on('load', () => {
+            // 戦前古地図5万分の1地形図ソース
+            map.addSource(`terrain-917`, {
+                type: 'raster',
+                tiles: [
+                    `https://mapwarper.h-gis.jp/maps/tile/917/{z}/{x}/{y}.png`,
+                ],
+                attribution: '<a href="https://mapwarper.h-gis.jp/" target="_blank">日本版MapWarper</a>',
+                tileSize: 256
+            });
+
+            // 戦前古地図5万分の1地形図レイヤ
+            map.addLayer({
+                id: `terrain-917`,
+                type: 'raster',
+                source: `terrain-917`,
+                minzoom: 1,
+                maxzoom: 18,
+                paint: {
+                    'raster-opacity': 1.0
+                }
+            });
+
+            // スライダーで戦前古地図5万分の1地形図の不透明度を制御
+            const terrain_sliderOpactiy = document.getElementById('terrain-slider-opacity');
+            const terrain_sliderOpactiyValue = document.getElementById('terrain-slider-opacity-value');
+
+            terrain_sliderOpactiy.addEventListener('input', (e) => {
+                map.setPaintProperty(
+                    'terrain-917',
+                    'raster-opacity',
+                    parseInt(e.target.value, 10) / 100
+                );
+                terrain_sliderOpactiyValue.textContent = e.target.value + '%';
+            });
+
+            map.showTileBoundaries = false;
+
+        })
+    </script>
+</body>
+
+</html>
